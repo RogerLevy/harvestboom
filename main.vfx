@@ -1,12 +1,13 @@
-
 include config/options.vfx
 include config/allegro.vfx
 cwd ../vfxland3
 include lib/vl3/vfxland3.vfx
 include lib/csv.vfx
 include lib/vl3/plugins/obj1.vfx
-include lib/vl3/plugins/bitmaps1.vfx
+include lib/vl3/plugins/bitmaps2.vfx
 cwd %idir%
+
+-sin  \ disable tokenization of all definitions from here
 
 %object sizeof
 objvar tm-cols  \ scalar
@@ -14,16 +15,18 @@ objvar tm-rows  \ scalar
 objvar tm-dcols  \ scalar
 objvar tm-drows  \ scalar
 objvar tm-base  \ addr
-objvar tm-tofs
 objvar tm-stride
 objvar tm-scrollx  \ scalar
 objvar tm-scrolly  \ scalar
 objvar tm-tw  \ scalar
 objvar tm-th  \ scalar
+objvar tm-ts
 create %tilemap ,
 
-include ../vfxland3/lib/vl3/plugins/tilemap1.vfx
+include ../vfxland3/lib/vl3/plugins/tilemap2.vfx
 include ../vfxland3/lib/files1.vfx
+
+\ ------------------------------------------------------------------------------
 
 : read> ( $ c - <code> )  ( a c - )
     r/o[ bytes-left allocate throw
@@ -43,53 +46,24 @@ create crlf 2 c, $0d c, $0a c,
 
 \ ------------------------------------------------------------------------------
 
--sin  \ disable tokenization of all definitions from here
+: bytes ;
+100 256 bytes create-pool p
+: rnd  choose ;
+
+\ ------------------------------------------------------------------------------
 
 : static-map  create read> lines> csv> evaluate , ;
-
-s" data/leveltest.csv"  static-map  testmap
-
-256 bitmap z" data/lemming.png" ?load-bitmap
-256 0 16 16 tile 512 bitmap!
-\ 1 36 16 16 tile 3 bitmap!
-\ 1 210 16 16 tile 4 bitmap!
-:noname  p each>  640 rnd 480 rnd x v!  -1  draw> 512 blit ;
-execute
-
-257 bitmap z" data/castle-tileset.png" ?load-bitmap
-: make-tiles  ( start end - )
-    swap do  257 i 16 16 tile i bitmap!  loop ;
-
-0 128 make-tiles
-
+s" data/leveltest.csv" static-map testmap
+z" data/castle-tileset.png" loadbmp constant castle.bmp
+create castle.ts  castle.bmp 16 16 >tiles,
 p constant tm
-tm [[
-    testmap tilemap-init
-    0 0 x v!
-    20 cells tm-stride !
-    20 15 tm-dcols v!
-    20 15 tm-cols v!
-    \ :noname  step>  0.25e 0.25e tm-scrollx fv+! ; execute
-]]
+tm [[ testmap castle.ts 20 15 /tilemap ]]
 
-: cls
-    0.5e 0.25e 0e 1e al_clear_to_color ;
-
-\ : .me
-\     kind @ body> >name count type ." kind !"
-
-: advance-stage
-    each>  'step @ ?execute  -1 ;
-
-: render-stage
-    each>  x v@ at  'draw @ ?execute  -1 ; 
-
-: present
-    display al_flip_display ;
-
-: render
-    p advance-stage  cls  p render-stage  present ;
-
-: go  begin  render  pause again ;
+: cls  0.5e 0.25e 0e 1e al_clear_to_color ;
+: advance  each>  'step @ ?execute  -1 ;
+: render  each>  x v@ at  'draw @ ?execute  -1 ; 
+: present  display al_flip_display ;
+: frame  p advance  cls  p render  present ;
+: go  begin frame pause again ;
 
 \ go
