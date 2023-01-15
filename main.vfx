@@ -3,11 +3,9 @@ include config/allegro.vfx
 cwd ../vfxland3
 include lib/vl3/vfxland3.vfx
 include lib/csv.vfx
-include lib/vl3/plugins/obj1.vfx
-include lib/vl3/plugins/bitmaps2.vfx
+include plugins/obj1.vfx
+include plugins/bitmaps2.vfx
 cwd %idir%
-
--sin  \ disable tokenization of all definitions from here
 
 %object sizeof
 objvar tm-cols  \ scalar
@@ -23,8 +21,14 @@ objvar tm-th  \ scalar
 objvar tm-ts
 create %tilemap ,
 
-include ../vfxland3/lib/vl3/plugins/tilemap2.vfx
+include ../vfxland3/plugins/tilemap2.vfx
 include ../vfxland3/lib/files1.vfx
+
+-sin  \ disable tokenization of all definitions from here
+
+\ ------------------------------------------------------------------------------
+
+create alevt /ALLEGRO_EVENT allot&erase
 
 \ ------------------------------------------------------------------------------
 
@@ -46,24 +50,51 @@ create crlf 2 c, $0d c, $0a c,
 
 \ ------------------------------------------------------------------------------
 
-: bytes ;
-100 256 bytes create-pool p
-: rnd  choose ;
-
-\ ------------------------------------------------------------------------------
-
 : static-map  create read> lines> csv> evaluate , ;
 s" data/leveltest.csv" static-map testmap
 z" data/castle-tileset.png" loadbmp constant castle.bmp
 create castle.ts  castle.bmp 16 16 >tiles,
-p constant tm
-tm [[ testmap castle.ts 20 15 /tilemap ]]
 
+: create-static-tilemap ( a-map a-ts cols rows - <name> ) ( - tilemap )
+    create %tilemap static /tilemap ;
+
+\ ------------------------------------------------------------------------------
+
+: move-about
+    <up> held if -1 y s+! then
+    <down> held if 1 y s+! then
+    <left> held if -1 x s+! then
+    <right> held if 1 x s+! then ;
+\    <enter> pressed if 10 x s+! then
+\    walt y +! x s+! ;
+
+: /barrel  step> move-about draw> 58 castle.ts tile ;
+
+\ ------------------------------------------------------------------------------
+
+create root 0 0 pool
+testmap castle.ts 20 15 create-static-tilemap tm 
+create %object static /barrel
+
+\ ------------------------------------------------------------------------------
+
+: handle-events
+    begin  queue alevt al_get_next_event  while
+        alevt ALLEGRO_EVENT.type @ ALLEGRO_EVENT_MOUSE_BUTTON_DOWN = if
+            10 y +!
+        then 
+    repeat ;
+
+: init
+    reset-keyboard 
+    display al_get_win_window_handle SetForegroundWindow drop ;
+
+: poll  poll-keyboard poll-mouse ;
 : cls  0.5e 0.25e 0e 1e al_clear_to_color ;
-: advance  each>  'step @ ?execute  -1 ;
+: advance  poll  handle-events  each>  'step @ ?execute  -1 ;
 : render  each>  x v@ at  'draw @ ?execute  -1 ; 
 : present  display al_flip_display ;
-: frame  p advance  cls  p render  present ;
-: go  begin frame pause again ;
+: frame  root advance  cls  root render  present ;
+: go  init begin frame pause again ;
 
 \ go
