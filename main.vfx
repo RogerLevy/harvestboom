@@ -97,7 +97,8 @@ create barrel %barrel static /barrel  tm map !  50 50 x v!  0 0 vx v!
 
 : >display
     reset-keyboard 
-    display al_get_win_window_handle SetForegroundWindow drop ;
+    display al_get_win_window_handle SetForegroundWindow drop
+    identity 0e 0e 0e 2e 2e transformed ;
 
 : >vfx
     mswin? if
