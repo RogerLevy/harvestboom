@@ -1,25 +1,25 @@
-include config/options.vfx
-include config/allegro.vfx
+require config/options.vfx
+require config/allegro.vfx
 cwd ../vfxland3
-include lib/vl3/vfxland3.vfx
-include lib/csv.vfx
-include plugins/obj1.vfx
-include plugins/bitmaps2.vfx
+require lib/vl3/vfxland3.vfx
+require lib/csv.vfx
+require plugins/obj1.vfx
+require plugins/bitmaps2.vfx
 cwd %idir%
 
 %object sizeof
-objvar tm-cols  \ scalar
-objvar tm-rows  \ scalar
-objvar tm-dcols  \ scalar
-objvar tm-drows  \ scalar
-objvar tm-base  \ addr
-objvar tm-stride
-objvar tm-scrollx  \ scalar
-objvar tm-scrolly  \ scalar
-objvar tm-tw  \ scalar
-objvar tm-th  \ scalar
-objvar tm-ts
-create %tilemap ,
+    objvar tm-cols  \ scalar
+    objvar tm-rows  \ scalar
+    objvar tm-dcols  \ scalar
+    objvar tm-drows  \ scalar
+    objvar tm-base  \ addr
+    objvar tm-stride
+    objvar tm-scrollx  \ scalar
+    objvar tm-scrolly  \ scalar
+    objvar tm-tw  \ scalar
+    objvar tm-th  \ scalar
+    objvar tm-ts  \ addr
+create %tilemap , 0 ,
 
 include ../vfxland3/plugins/tilemap2.vfx
 include ../vfxland3/plugins/tilecol1.vfx
@@ -33,31 +33,13 @@ create alevt /ALLEGRO_EVENT allot&erase
 
 \ ------------------------------------------------------------------------------
 
-: read> ( $ c - <code> )  ( a c - )
-    r/o[ bytes-left allocate throw
-        dup bytes-left 2dup read  r> execute
-        free throw
-    ]file ;
-
-create crlf 2 c, $0d c, $0a c, 
-: lines> ( a c - <code> ) ( a c - )
-    begin over >r crlf count search while
-        over r> swap over - r@ execute
-        2 /string
-    repeat
-    r> drop
-    dup if  r@ execute  else  2drop  then
-    r> drop ;
-
-\ ------------------------------------------------------------------------------
-
-: static-map  create read> lines> csv> evaluate , ;
-s" data/leveltest.csv" static-map testmap
+: load-static-array  create read> lines> csv> evaluate , ;
+s" data/leveltest.csv" load-static-array testarr
 z" data/castle-tileset.png" loadbmp constant castle.bmp
 create castle.ts  castle.bmp 16 16 >tiles,
 
-: create-static-tilemap ( a-map a-ts cols rows - <name> ) ( - tilemap )
-    create %tilemap static /tilemap ;
+: ,,  0 do dup , loop  drop ;
+create floorarr  25 20 15 * ,,
 
 \ ------------------------------------------------------------------------------
 
@@ -67,25 +49,29 @@ create castle.ts  castle.bmp 16 16 >tiles,
     <down> held? if 1 vy s! then
     <left> held? if -1 vx s! then
     <right> held? if 1 vx s! then ;
-\    <enter> pressed if 10 x s+! then
-\    walt y +! x s+! ;
 
-: extend  sizeof ;
 %object extend
-objvar map
-create %barrel ,
+    objvar map
+    
+    : lay-gems
+        <space> held? if
+            65 x v@ 16 / swap 16 / swap map @ tileloc !
+        then ;
+        
+    : /barrel
+        16 16 w v!
+        step> move-about lay-gems
+        motion>  map @ ?dup if  collide-tilemap  then  vx fv@ x fv+!  
+        draw> 58 castle.ts tile ;
 
-: /barrel
-    16 16 w v!
-    step> move-about
-    motion>  map @ ?dup if  collide-tilemap  then  vx fv@ x fv+!  
-    draw> 58 castle.ts tile ;
+create %barrel , ' /barrel ,
 
 \ ------------------------------------------------------------------------------
 
-create root 0 0 pool
-testmap castle.ts 20 15 create-static-tilemap tm 
-create barrel %barrel static /barrel  tm map !  50 50 x v!  0 0 vx v!
+create root 0 0 pool  
+create fl  %tilemap static  floorarr castle.ts 20 15 /tilemap
+create lv  %tilemap static  testarr castle.ts 20 15 /tilemap
+create barrel %barrel static  lv map !  50 50 x v!  0 0 vx v!
 
 \ ------------------------------------------------------------------------------
 
@@ -102,7 +88,7 @@ create barrel %barrel static /barrel  tm map !  50 50 x v!  0 0 vx v!
 
 : >vfx
     mswin? if
-        vfx-hwnd SetForegroundWindow
+        vfx-hwnd SetForegroundWindow drop
     then ;
 
 : poll  poll-keyboard poll-mouse ;
