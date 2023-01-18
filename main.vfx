@@ -63,28 +63,7 @@ variable level
 
 \ ------------------------------------------------------------------------------
 
-: move-about
-    0 0 vx v!
-    <up> held? if -1 vy s! then
-    <down> held? if 1 vy s! then
-    <left> held? if -1 vx s! then
-    <right> held? if 1 vx s! then ;
-
-%object extend
-    objvar map
-    
-    : lay-gems
-        <space> held? if
-            65 x v@ 16 / swap 16 / swap map @ tileloc !
-        then ;
-        
-    : /barrel
-        16 16 w v!
-        step> move-about lay-gems
-        motion>  map @ ?dup if  collide-tilemap  then  vx fv@ x fv+!
-        draw> 58 castle.ts tile ;
-
-create %barrel , ' /barrel ,
+include kinds/player.vfx
 
 \ ------------------------------------------------------------------------------
 
@@ -94,7 +73,7 @@ children
     create g2  %tilemap static  ground2.arr farm.ts 20 15 /tilemap
     create a1  %tilemap static  active.arr farm.ts 20 15 /tilemap
     create pool1  300 256 pool  include gamepool.vfx
-    create barrel %barrel static  a1 map !  50 50 x v!  0 0 vx v!
+    create player %player static  a1 map !  50 50 x v!  0 0 vx v!
 end-children
 
 include game.vfx

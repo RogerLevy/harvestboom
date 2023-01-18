@@ -1,0 +1,25 @@
+: move-about
+    0 0 vx v!
+    <up> held? if -0.5e vy fs! then
+    <down> held? if 0.5e vy fs! then
+    <left> held? if -0.5e vx fs! then
+    <right> held? if 0.5e vx fs! then ;
+
+farm.bmp  17 16 * 0  32 32  al_create_sub_bitmap constant boy.bmp
+
+
+%object extend
+    objvar map
+    
+    : lay-gems
+        <space> held? if
+            65 x v@ 16 / swap 16 / swap map @ tileloc !
+        then ;
+        
+    : /player
+        16 16 w v!
+        step> move-about lay-gems
+        motion>  map @ ?dup if  collide-tilemap  then  vx fv@ x fv+!
+        draw> -8 -16 +at boy.bmp blit ;
+
+create %player , ' /player ,
