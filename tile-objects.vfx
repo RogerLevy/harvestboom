@@ -1,14 +1,21 @@
 : rnd  choose ;
 
 %object extend
+    objvar map
     objvar til
 
-    : /shaky  object-tile @ til !  cr ." 'HI!!!!' SAYS SHAKY"
-        draw>  til @ farm.ts tile
-        200 rnd s>f 100e f/ 1e f-
-        200 rnd s>f 100e f/ 1e f- 
-        x fv+! ;
-
+    : /shaky
+        a1 map !
+        object-tile @ til !
+        16 16 w v!
+        cr ." 'HI!!!!' SAYS SHAKY"
+        step>
+            200 rnd s>f 100e f/ 1e f-
+            200 rnd s>f 100e f/ 1e f- 
+                vx fv!         
+        motion>
+            map @ ?dup if  collide-tilemap  then  vx fv@ x fv+!
+        draw>  til @ farm.ts tile ;
 create %shaky , ' /shaky ,
 
 %shaky 232 cells tile-objects + !  \ pumpkin
