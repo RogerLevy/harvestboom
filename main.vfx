@@ -64,6 +64,7 @@ variable level
 \ ------------------------------------------------------------------------------
 
 include kinds/player.vfx
+include gamepool.vfx
 
 \ ------------------------------------------------------------------------------
 
@@ -72,7 +73,7 @@ children
     create g1  %tilemap static  ground1.arr farm.ts 20 15 /tilemap
     create g2  %tilemap static  ground2.arr farm.ts 20 15 /tilemap
     create a1  %tilemap static  active.arr farm.ts 20 15 /tilemap
-    create pool1  300 256 pool  include gamepool.vfx
+    create pool1  300 256 gamepool  
     create player %player static  a1 map !  50 50 x v!  0 0 vx v!
 end-children
 
