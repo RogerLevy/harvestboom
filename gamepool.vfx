@@ -1,0 +1,8 @@
+: think  each>  'step @ ?execute  -1 ;
+: motion  each>  'motion @ ?execute  -1 ;
+: render  each>  x v@ at  'draw @ ?execute  -1 ; 
+
+en on
+:noname  me think ; 'step !
+:noname  me motion ; 'motion !
+:noname  me render ; 'draw !

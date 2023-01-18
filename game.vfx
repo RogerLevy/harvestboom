@@ -1,0 +1,62 @@
+create tile-objects  1024 cells allot&erase
+
+: clear-tile  -1 swap ! ;
+
+: instance  ( kind pool - obj )
+    one [[ at@f x fv!  me ]] ; 
+
+variable object-tile  \ allows objects to know the tile # that spawned them
+
+: load-tile-objects  ( tilemap - )
+    pool1 vacate
+    [[ tm-base @  tm-rows s@ 0 do
+        tm-cols s@ 0 do
+            dup @ 0 >= if
+                dup @ cells tile-objects + @ ?dup if
+                    over @ object-tile !  over clear-tile  
+                    i tm-tw s@ *  j tm-th s@ *  at   
+                    ( kind ) pool1 instance [[ init ]]
+                then
+            then
+            cell+
+        loop
+    loop  drop ]] ;
+
+%pool extend
+    \ these were pointers before I realized I could just make it a pool (list)
+    \ objvar lv.ground1  \ tilemap
+    \ objvar lv.ground2  \ tilemap
+    \ objvar lv.active1   \ tilemap
+create %level , 0 ,
+
+create levels  100 cell allot&erase
+
+: csv  ( $ c - a )
+    here -rot  read> lines> csv> evaluate , ;
+
+: layer  %tilemap static  20 15 /tilemap ;
+
+: declare-level  ( n - <name> )
+    >in @ create
+    %level static  me rot cells levels + !
+    children
+        >in ! bl parse pad place
+        s" tiled/" pad count $+ s" _ground1.csv" $+ cr 2dup type csv farm.ts layer 
+        s" tiled/" pad count $+ s" _ground2.csv" $+ cr 2dup type csv farm.ts layer 
+        s" tiled/" pad count $+ s" _active1.csv" $+ cr 2dup type csv farm.ts layer 
+    end-children
+;
+
+: count-tilemap  [[ tm-base @ tm-cols v@ * cells ]] ;
+
+: load-level  ( level - )
+    >first dup count-tilemap g1 [[ tm-base @ ]] swap move
+    >next dup count-tilemap g2 [[ tm-base @ ]] swap move
+    >next count-tilemap a1 [[ tm-base @ ]] swap move
+    a1 load-tile-objects ;
+        
+: play  ( n - )
+    dup cells levels + @ dup 0= if  2drop  exit  then
+    swap  level !  load-level ;
+
+include tile-objects.vfx

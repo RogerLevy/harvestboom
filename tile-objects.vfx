@@ -1,0 +1,17 @@
+: rnd  choose ;
+
+%object extend
+    objvar til
+
+    : /shaky  object-tile @ til !  cr ." 'HI!!!!' SAYS SHAKY"
+        draw>  til @ farm.ts tile
+        200 rnd s>f 100e f/ 1e f-
+        200 rnd s>f 100e f/ 1e f- 
+        x fv+! ;
+
+create %shaky , ' /shaky ,
+
+%shaky 232 cells tile-objects + !  \ pumpkin
+%shaky 388 cells tile-objects + !  \ chicken
+%shaky 415 cells tile-objects + !  \ goose
+%shaky 350 cells tile-objects + !  \ dog

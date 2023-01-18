@@ -24,8 +24,15 @@ create %tilemap , 0 ,
 include ../vfxland3/plugins/tilemap2.vfx
 include ../vfxland3/plugins/tilecol1.vfx
 include ../vfxland3/lib/files1.vfx
+include lib/str.vfx
 
 -sin  \ disable tokenization of all definitions from here
+
+: think   each>  en @ if  'step @ ?execute           then  -1 ;
+: motion  each>  en @ if  'motion @ ?execute         then  -1 ;
+: render  each>  en @ if  x v@ at  'draw @ ?execute  then  -1 ; 
+
+: .pool  each>  cr me >name count type  -1 ;
 
 \ ------------------------------------------------------------------------------
 
@@ -33,13 +40,26 @@ create alevt /ALLEGRO_EVENT allot&erase
 
 \ ------------------------------------------------------------------------------
 
-: load-static-array  create read> lines> csv> evaluate , ;
-s" data/leveltest.csv" load-static-array testarr
-z" data/castle-tileset.png" loadbmp constant castle.bmp
+: read-csv,  read> lines> csv> evaluate , ;
+
+\ s" assets/leveltest.csv" load-static-array testarr
+s" tiled/1-1_active1.csv"  create active.arr  read-csv,
+
+z" assets/castle-tileset.png" loadbmp constant castle.bmp
 create castle.ts  castle.bmp 16 16 >tiles,
 
-: ,,  0 do dup , loop  drop ;
-create floorarr  25 20 15 * ,,
+z" assets/Simple Farm Packv12-export-export.png" loadbmp constant farm.bmp
+create farm.ts  farm.bmp 16 16 >tiles,
+
+
+\ : ,,  0 do dup , loop  drop ;
+\ create floorarr  25 20 15 * ,,
+s" tiled/1-1_ground1.csv"  create ground1.arr read-csv,
+s" tiled/1-1_ground2.csv"  create ground2.arr read-csv,
+
+\ ------------------------------------------------------------------------------
+
+variable level
 
 \ ------------------------------------------------------------------------------
 
@@ -61,17 +81,24 @@ create floorarr  25 20 15 * ,,
     : /barrel
         16 16 w v!
         step> move-about lay-gems
-        motion>  map @ ?dup if  collide-tilemap  then  vx fv@ x fv+!  
+        motion>  map @ ?dup if  collide-tilemap  then  vx fv@ x fv+!
         draw> 58 castle.ts tile ;
 
 create %barrel , ' /barrel ,
 
 \ ------------------------------------------------------------------------------
 
-create root 0 0 pool  
-create fl  %tilemap static  floorarr castle.ts 20 15 /tilemap
-create lv  %tilemap static  testarr castle.ts 20 15 /tilemap
-create barrel %barrel static  lv map !  50 50 x v!  0 0 vx v!
+create root  0 0 independent pool
+children
+    create g1  %tilemap static  ground1.arr farm.ts 20 15 /tilemap
+    create g2  %tilemap static  ground2.arr farm.ts 20 15 /tilemap
+    create a1  %tilemap static  active.arr farm.ts 20 15 /tilemap
+    create pool1  300 256 pool  include gamepool.vfx
+    create barrel %barrel static  a1 map !  50 50 x v!  0 0 vx v!
+end-children
+
+include game.vfx
+include levels.vfx
 
 \ ------------------------------------------------------------------------------
 
@@ -93,10 +120,7 @@ create barrel %barrel static  lv map !  50 50 x v!  0 0 vx v!
 
 : poll  poll-keyboard poll-mouse ;
 : cls  0.5e 0.25e 0e 1e al_clear_to_color ;
-: think  each>  'step @ ?execute  -1 ;
-: motion  each>  'motion @ ?execute  -1 ;
 : advance  poll  handle-events  dup think  motion ;
-: render  each>  x v@ at  'draw @ ?execute  -1 ; 
 : present  display al_flip_display ;
 : frame  root advance  cls  root render  present ;
 : go  >display  begin frame pause  <escape> pressed? until  >vfx ;
