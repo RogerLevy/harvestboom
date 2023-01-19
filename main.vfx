@@ -36,13 +36,8 @@ include lib/str.vfx
 
 \ ------------------------------------------------------------------------------
 
-create alevt /ALLEGRO_EVENT allot&erase
-
-\ ------------------------------------------------------------------------------
-
 : read-csv,  read> lines> csv> evaluate , ;
 
-\ s" assets/leveltest.csv" load-static-array testarr
 s" tiled/1-1_active1.csv"  create active.arr  read-csv,
 
 z" assets/castle-tileset.png" loadbmp constant castle.bmp
@@ -65,22 +60,13 @@ variable level
 
 include kinds/player.vfx
 include gamepool.vfx
-
-\ ------------------------------------------------------------------------------
-
-create root  0 0 independent pool
-children
-    create g1  %tilemap static  ground1.arr farm.ts 20 15 /tilemap
-    create g2  %tilemap static  ground2.arr farm.ts 20 15 /tilemap
-    create a1  %tilemap static  active.arr farm.ts 20 15 /tilemap
-    create pool1  300 256 gamepool  
-    create player %player static  a1 map !  50 50 x v!  0 0 vx v!
-end-children
-
 include game.vfx
+include tile-objects.vfx
 include levels.vfx
 
 \ ------------------------------------------------------------------------------
+
+create alevt /ALLEGRO_EVENT allot&erase
 
 : handle-events
     begin  queue alevt al_get_next_event  while

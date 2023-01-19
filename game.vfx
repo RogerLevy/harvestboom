@@ -1,3 +1,13 @@
+create root  0 0 independent pool
+
+children
+    create g1  %tilemap static  ground1.arr farm.ts 20 15 /tilemap
+    create g2  %tilemap static  ground2.arr farm.ts 20 15 /tilemap
+    create a1  %tilemap static  active.arr farm.ts 20 15 /tilemap
+    create gp  300 256 gamepool  
+    create player %player static  a1 map !  50 50 x v!  0 0 vx v!
+end-children
+
 create tile-objects  1024 cells allot&erase
 
 : clear-tile  -1 swap ! ;
@@ -8,14 +18,14 @@ create tile-objects  1024 cells allot&erase
 variable object-tile  \ allows objects to know the tile # that spawned them
 
 : load-tile-objects  ( tilemap - )
-    pool1 vacate
+    gp vacate
     [[ tm-base @  tm-rows s@ 0 do
         tm-cols s@ 0 do
             dup @ 0 >= if
                 dup @ cells tile-objects + @ ?dup if
                     over @ object-tile !  over clear-tile  
                     i tm-tw s@ *  j tm-th s@ *  at   
-                    ( kind ) pool1 instance [[ init ]]
+                    ( kind ) gp instance [[ init ]]
                 then
             then
             cell+
@@ -59,4 +69,3 @@ create levels  100 cell allot&erase
     dup cells levels + @ dup 0= if  2drop  exit  then
     swap  level !  load-level ;
 
-include tile-objects.vfx
