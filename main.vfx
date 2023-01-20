@@ -28,11 +28,7 @@ include lib/str.vfx
 
 -sin  \ disable tokenization of all definitions from here
 
-: think   each>  en @ if  'step @ ?execute           then  -1 ;
-: motion  each>  en @ if  'motion @ ?execute         then  -1 ;
-: render  each>  en @ if  x v@ at  'draw @ ?execute  then  -1 ; 
-
-: .pool  each>  cr me >name count type  -1 ;
+: .each  each>  cr me >name count type  ( me recurse )  -1 ;
 
 \ ------------------------------------------------------------------------------
 
@@ -46,9 +42,6 @@ create castle.ts  castle.bmp 16 16 >tiles,
 z" assets/Simple Farm Packv12-export-export.png" loadbmp constant farm.bmp
 create farm.ts  farm.bmp 16 16 >tiles,
 
-
-\ : ,,  0 do dup , loop  drop ;
-\ create floorarr  25 20 15 * ,,
 s" tiled/1-1_ground1.csv"  create ground1.arr read-csv,
 s" tiled/1-1_ground2.csv"  create ground2.arr read-csv,
 
@@ -59,8 +52,7 @@ variable level
 \ ------------------------------------------------------------------------------
 
 include kinds/player.vfx
-include gamepool.vfx
-include game.vfx
+include game.vfx 
 include tile-objects.vfx
 include levels.vfx
 
@@ -86,9 +78,10 @@ create alevt /ALLEGRO_EVENT allot&erase
 
 : poll  poll-keyboard poll-mouse ;
 : cls  0.5e 0.25e 0e 1e al_clear_to_color ;
-: advance  poll  handle-events  dup think  motion ;
+: advance  [[ step  motion ]] ;
+: render  [[ draw ]] ;
 : present  display al_flip_display ;
-: frame  root advance  cls  root render  present ;
+: frame  poll  handle-events  root advance  cls  root render  present ;
 : go  >display  begin frame pause  <escape> pressed? until  >vfx ;
 
 \ go

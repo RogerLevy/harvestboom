@@ -1,10 +1,10 @@
-create root  0 0 independent pool
+create root  independent %object static
 
 children
     create g1  %tilemap static  ground1.arr farm.ts 20 15 /tilemap
     create g2  %tilemap static  ground2.arr farm.ts 20 15 /tilemap
     create a1  %tilemap static  active.arr farm.ts 20 15 /tilemap
-    create gp  300 256 gamepool  
+    create gp  300 256 pool
     create player %player static  a1 map !  50 50 x v!  0 0 vx v!
 end-children
 
