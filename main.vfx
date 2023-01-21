@@ -38,10 +38,10 @@ include lib/str.vfx
 s" tiled/1-1_active1.csv"  create active.arr  read-csv,
 
 z" assets/castle-tileset.png" loadbmp constant castle.bmp
-create castle.ts  castle.bmp 16 16 >tiles,
+create castle.ts  castle.bmp 16 16 tileset
 
 z" assets/Simple Farm Packv12-export-export.png" loadbmp constant farm.bmp
-create farm.ts  farm.bmp 16 16 >tiles,
+create farm.ts  farm.bmp 16 16 tileset
 
 s" tiled/1-1_ground1.csv"  create ground1.arr read-csv,
 s" tiled/1-1_ground2.csv"  create ground2.arr read-csv,
