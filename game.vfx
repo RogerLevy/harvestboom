@@ -37,27 +37,28 @@ variable object-tile  \ allows objects to know the tile # that spawned them
     \ objvar lv.ground1  \ tilemap
     \ objvar lv.ground2  \ tilemap
     \ objvar lv.active1   \ tilemap
-create %level , 0 ,
+create-kind %level
 
 create levels  100 cell allot&erase
 
 : csv  ( $ c - a )
-    here -rot  read> lines> csv> evaluate , ;
+    cr 2dup type  here -rot  read> lines> csv> evaluate , ;
 
-: layer  %tilemap static  20 15 /tilemap ;
+: layer  ( a:base a:ts - )
+    %tilemap static  20 15 /tilemap ;
 
 : declare-level  ( n - <name> )
     >in @ create
     %level static  me rot cells levels + !
     children
         >in ! bl parse pad place
-        s" tiled/" pad count $+ s" _ground1.csv" $+ cr 2dup type csv farm.ts layer 
-        s" tiled/" pad count $+ s" _ground2.csv" $+ cr 2dup type csv farm.ts layer 
-        s" tiled/" pad count $+ s" _active1.csv" $+ cr 2dup type csv farm.ts layer 
-    end-children
-;
+        s" tiled/" pad count $+ s" _ground1.csv" $+ csv farm.ts layer 
+        s" tiled/" pad count $+ s" _ground2.csv" $+ csv farm.ts layer 
+        s" tiled/" pad count $+ s" _active1.csv" $+ csv farm.ts layer 
+    end-children ;
 
-: count-tilemap  [[ tm-base @ tm-cols v@ * cells ]] ;
+: count-tilemap  ( tilemap - a c )
+    [[ tm-base @ tm-cols v@ * cells ]] ;
 
 : load-level  ( level - )
     >first dup count-tilemap g1 [[ tm-base @ ]] swap move

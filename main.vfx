@@ -5,6 +5,7 @@ require lib/vl3/vfxland3.vfx
 require lib/csv.vfx
 require plugins/obj1.vfx
 require plugins/bitmaps2.vfx
+require plugins/delta.vfx
 cwd %idir%
 
 %object sizeof
@@ -19,7 +20,7 @@ cwd %idir%
     objvar tm-tw  \ scalar
     objvar tm-th  \ scalar
     objvar tm-ts  \ addr
-create %tilemap , 0 ,
+create-kind %tilemap
 
 include ../vfxland3/plugins/tilemap2.vfx
 include ../vfxland3/plugins/tilecol1.vfx
@@ -69,7 +70,8 @@ create alevt /ALLEGRO_EVENT allot&erase
 : >display
     reset-keyboard 
     display al_get_win_window_handle SetForegroundWindow drop
-    identity 0e 0e 0e 2e 2e transformed ;
+    identity 0e 0e 0e 2e 2e transformed
+    !delta ;
 
 : >vfx
     mswin? if
@@ -77,11 +79,10 @@ create alevt /ALLEGRO_EVENT allot&erase
     then ;
 
 : poll  poll-keyboard poll-mouse ;
-: cls  0.5e 0.25e 0e 1e al_clear_to_color ;
 : advance  [[ step  motion ]] ;
 : render  [[ draw ]] ;
 : present  display al_flip_display ;
-: frame  poll  handle-events  root advance  cls  root render  present ;
-: go  >display  begin frame pause  <escape> pressed? until  >vfx ;
+: frame  poll  handle-events  root advance  root render  present ;
+: go  >display  begin !delta  frame pause  <escape> pressed? until  >vfx ;
 
 \ go
