@@ -1,24 +1,4 @@
-: rnd  choose ;
-
-%object extend
-    objvar map
-    objvar til
-create-kind %shaky
-
-: /shaky
-    a1 map !
-    object-tile @ til !
-    16 16 w v!
-    cr ." 'HI!!!!' SAYS SHAKY"
-    step>
-        200 rnd s>f 100e f/ 1e f-
-        200 rnd s>f 100e f/ 1e f- 
-            vx fv!         
-    motion>
-        map @ ?dup if  collide-tilemap  then  vx fv@ 2delta* x fv+!
-    draw>  til @ farm.ts tile ;
-    
-' /shaky %shaky kind.init !
+include kinds/shaky.vfx
 
 %shaky 232 cells tile-objects + !  \ pumpkin
 %shaky 388 cells tile-objects + !  \ chicken

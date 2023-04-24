@@ -47,14 +47,17 @@ create levels  100 cell allot&erase
 : layer  ( a:base a:ts - )
     %tilemap static  20 15 /tilemap ;
 
+: level-layer  ( $ c - )  \ $ c = suffix + fileext, pad = level name
+    s" tiled/" pad count $+ 2swap $+ csv farm.ts layer ;
+    
 : declare-level  ( n - <name> )
     >in @ create
     %level static  me rot cells levels + !
     children
         >in ! bl parse pad place
-        s" tiled/" pad count $+ s" _ground1.csv" $+ csv farm.ts layer 
-        s" tiled/" pad count $+ s" _ground2.csv" $+ csv farm.ts layer 
-        s" tiled/" pad count $+ s" _active1.csv" $+ csv farm.ts layer 
+        s" _ground1.csv" level-layer
+        s" _ground2.csv" level-layer
+        s" _active1.csv" level-layer
     end-children ;
 
 : count-tilemap  ( tilemap - a c )
@@ -70,3 +73,6 @@ create levels  100 cell allot&erase
     dup cells levels + @ dup 0= if  2drop  exit  then
     swap  level !  load-level ;
 
+: .name  >name count type ;
+: .obj  cr  me .name  space  kind @ .name  space  x sf@ f. y sf@ f. ;
+: .each  each>  en @ if  .obj  then  -1 ;

@@ -29,8 +29,6 @@ include lib/str.vfx
 
 -sin  \ disable tokenization of all definitions from here
 
-: .each  each>  cr me >name count type  ( me recurse )  -1 ;
-
 \ ------------------------------------------------------------------------------
 
 : read-csv,  read> lines> csv> evaluate , ;
@@ -53,7 +51,7 @@ variable level
 \ ------------------------------------------------------------------------------
 
 include kinds/player.vfx
-include game.vfx 
+include scene.vfx 
 include tile-objects.vfx
 include levels.vfx
 
