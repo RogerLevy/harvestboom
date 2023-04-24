@@ -9,17 +9,17 @@ require plugins/delta.vfx
 cwd %idir%
 
 %object sizeof
-    objvar tm-cols  \ scalar
-    objvar tm-rows  \ scalar
-    objvar tm-dcols  \ scalar
-    objvar tm-drows  \ scalar
-    objvar tm-base  \ addr
-    objvar tm-stride
-    objvar tm-scrollx  \ scalar
-    objvar tm-scrolly  \ scalar
-    objvar tm-tw  \ scalar
-    objvar tm-th  \ scalar
-    objvar tm-ts  \ addr
+    var tm-cols  \ scalar
+    var tm-rows  \ scalar
+    var tm-dcols  \ scalar
+    var tm-drows  \ scalar
+    var tm-base  \ addr
+    var tm-stride
+    var tm-scrollx  \ scalar
+    var tm-scrolly  \ scalar
+    var tm-tw  \ scalar
+    var tm-th  \ scalar
+    var tm-ts  \ addr
 create-kind %tilemap
 
 include vfxland3/plugins/tilemap2.vfx

@@ -9,7 +9,7 @@ farm.bmp  17 16 * 0  32 32  al_create_sub_bitmap constant boy.bmp
 
 
 %object extend
-    objvar map
+    var map
 create-kind %player
 
 : lay-gems

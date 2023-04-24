@@ -34,9 +34,9 @@ variable object-tile  \ allows objects to know the tile # that spawned them
 
 %pool extend
     \ these were pointers before I realized I could just make it a pool (list)
-    \ objvar lv.ground1  \ tilemap
-    \ objvar lv.ground2  \ tilemap
-    \ objvar lv.active1   \ tilemap
+    \ var lv.ground1  \ tilemap
+    \ var lv.ground2  \ tilemap
+    \ var lv.active1   \ tilemap
 create-kind %level
 
 create levels  100 cell allot&erase
