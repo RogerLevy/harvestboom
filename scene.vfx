@@ -1,78 +1,69 @@
-create root  independent %object static
+%actor kind: %scene
+    : (scene-clear)  me each> free drop ;
+    %scene m: (clear)  (scene-clear)  me dlclear ;
+;kind
 
-children
-    create g1  %tilemap static  ground1.arr farm.ts 20 15 /tilemap
-    create g2  %tilemap static  ground2.arr farm.ts 20 15 /tilemap
-    create a1  %tilemap static  active.arr farm.ts 20 15 /tilemap
-    create gp  300 256 pool
-    create player %player static  a1 map !  50 50 x v!  0 0 vx v!
-end-children
+0 0 at
+create root  %scene static,
+    create g1  %tilemap root child,  ground1.arr farm.ts 20 15 /tilemap
+    create g2  %tilemap root child,  ground2.arr farm.ts 20 15 /tilemap
+    create a1  %tilemap root child,  active.arr farm.ts 20 15 /tilemap
+    create gp  %scene root child,
+    create player %player root child,  a1 map !  50 50 x v!  0 0 vx v!
 
 create tile-objects  1024 cells allot&erase
 
 : clear-tile  -1 swap ! ;
 
-: instance  ( kind pool - obj )
-    one [[ at@f x fv!  me ]] ; 
-
 variable object-tile  \ allows objects to know the tile # that spawned them
 
 : load-tile-objects  ( tilemap - )
-    gp vacate
-    [[ tm-base @  tm-rows s@ 0 do
+    gp clear  [[
+    tm-base @  tm-rows s@ 0 do
         tm-cols s@ 0 do
             dup @ 0 >= if
                 dup @ cells tile-objects + @ ?dup if
                     over @ object-tile !  over clear-tile  
                     i tm-tw s@ *  j tm-th s@ *  at   
-                    ( kind ) gp instance [[ init ]]
+                    ( kind ) gp child [[ init .actor ]]
                 then
             then
             cell+
         loop
     loop  drop ]] ;
 
-%pool extend
-    \ these were pointers before I realized I could just make it a pool (list)
-    \ var lv.ground1  \ tilemap
-    \ var lv.ground2  \ tilemap
-    \ var lv.active1   \ tilemap
-create-kind %level
+%actor kind: %level ;kind
 
 create levels  100 cell allot&erase
+0 value (level)
 
 : csv  ( $ c - a )
     cr 2dup type  here -rot  read> lines> csv> evaluate , ;
 
-: layer  ( a:base a:ts - )
-    %tilemap static  20 15 /tilemap ;
+: layer,  ( a:base a:ts - )
+    %tilemap (level) child,  20 15 /tilemap ;
 
-: level-layer  ( $ c - )  \ $ c = suffix + fileext, pad = level name
-    s" tiled/" pad count $+ 2swap $+ csv farm.ts layer ;
-    
+\ $ c = suffix + fileext, pad = level name
+: level-layer  ( $ c - )  
+    s" tiled/" pad count $+ 2swap $+ csv farm.ts layer, ;
+
 : declare-level  ( n - <name> )
     >in @ create
-    %level static  me rot cells levels + !
-    children
+    %level static,  me rot cells levels + !  me to (level)
         >in ! bl parse pad place
         s" _ground1.csv" level-layer
         s" _ground2.csv" level-layer
-        s" _active1.csv" level-layer
-    end-children ;
+        s" _active1.csv" level-layer ;
 
 : count-tilemap  ( tilemap - a c )
     [[ tm-base @ tm-cols v@ * cells ]] ;
 
 : load-level  ( level - )
-    >first dup count-tilemap g1 [[ tm-base @ ]] swap move
-    >next dup count-tilemap g2 [[ tm-base @ ]] swap move
-    >next count-tilemap a1 [[ tm-base @ ]] swap move
+    -> first @ dup count-tilemap g1 [[ tm-base @ ]] swap move
+    -> next @ dup count-tilemap g2 [[ tm-base @ ]] swap move
+    -> next @ count-tilemap a1 [[ tm-base @ ]] swap move
     a1 load-tile-objects ;
         
 : play  ( n - )
     dup cells levels + @ dup 0= if  2drop  exit  then
     swap  level !  load-level ;
-
-: .name  >name count type ;
-: .obj  cr  me .name  space  kind @ .name  space  x sf@ f. y sf@ f. ;
-: .each  each>  en @ if  .obj  then  -1 ;

@@ -1,21 +1,19 @@
 : rnd  choose ;
 
-%object extend
+%actor kind: %shaky
     var map
     var til
-create-kind %shaky
+;kind %shaky
 
-: /shaky
+%shaky m: init
     a1 map !
     object-tile @ til !
     16 16 w v!
-    cr ." 'HI!!!!' SAYS SHAKY"
+    \ cr ." 'HI!!!!' SAYS SHAKY"
     step>
         200 rnd s>f 100e f/ 1e f-
         200 rnd s>f 100e f/ 1e f- 
-            vx fv!         
-    motion>
+            vx fv!    
+    physics>
         map @ ?dup if  collide-tilemap  then  vx fv@ 2delta* x fv+!
     draw>  til @ farm.ts tile ;
-    
-' /shaky %shaky kind.init !

@@ -1,0 +1,24 @@
+method init ( -- )
+
+%obj m: init ;
+%dlnode m: init ;
+%actor m: init ;
+
+: static,  ( actor-kind - me=obj )
+    here as  instance,  at@f x fv!  en on  init ;
+
+: child,  ( actor-kind parent - me=obj )
+    swap static,  me swap push ;
+
+: child  ( actor-kind parent - obj )
+    swap instance [[ me swap push  at@f x fv!  en on  init  me ]] ;
+
+: ?execute  ?dup if execute then ;
+
+%actor m: draw  x v@ at  drw @ ?execute  me each>  en @ if  recurse  then ;
+%actor m: step  stp @ ?execute  me each>  en @ if  recurse  then ;
+%actor m: physics  phy @ ?execute  me each>  en @ if  recurse  then ;
+
+: .name  >name count type ;
+: .actor  cr  me .name  space  kind @ .name  space  x sf@ f. y sf@ f. ;
+: .each  each>  en @ if  .actor  then  -1 ;

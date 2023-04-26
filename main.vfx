@@ -3,12 +3,14 @@ include config/allegro.vfx
 cwd vfxland3
 require lib/vl3/vfxland3.vfx
 require lib/csv.vfx
-require plugins/obj1.vfx
+require plugins/obj2.vfx
 require plugins/bitmaps2.vfx
 require plugins/delta.vfx
 cwd %idir%
 
-%object sizeof
+include obj2ext.vfx
+
+%actor kind: %tilemap
     var tm-cols  \ scalar
     var tm-rows  \ scalar
     var tm-dcols  \ scalar
@@ -20,7 +22,7 @@ cwd %idir%
     var tm-tw  \ scalar
     var tm-th  \ scalar
     var tm-ts  \ addr
-create-kind %tilemap
+;kind
 
 include vfxland3/plugins/tilemap2.vfx
 include vfxland3/plugins/tilecol1.vfx
@@ -77,7 +79,7 @@ create alevt /ALLEGRO_EVENT allot&erase
     then ;
 
 : poll  poll-keyboard poll-mouse ;
-: advance  [[ step  motion ]] ;
+: advance  [[ step  physics ]] ;
 : render  [[ draw ]] ;
 : present  display al_flip_display ;
 : frame  poll  handle-events  root advance  root render  present ;

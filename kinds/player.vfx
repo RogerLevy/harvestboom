@@ -7,20 +7,17 @@
 
 farm.bmp  17 16 * 0  32 32  al_create_sub_bitmap constant boy.bmp
 
-
-%object extend
+%actor kind: %player
     var map
-create-kind %player
+;kind
 
 : lay-gems
     <space> held? if
         65 x v@ 16 / swap 16 / swap map @ tileloc !
     then ;
     
-: /player
+%player m: init
     16 16 w v!
-    step> move-about lay-gems
-    motion>  map @ ?dup if  collide-tilemap  then  vx fv@ 2delta* x fv+!
-    draw> -8 -16 +at boy.bmp blit ;
-
-' /player %player kind.init !
+    step>  move-about lay-gems
+    physics>  map @ ?dup if  collide-tilemap  then  vx fv@ 2delta* x fv+!
+    draw>  -8 -16 +at boy.bmp blit ;
