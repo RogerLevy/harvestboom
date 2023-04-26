@@ -13,7 +13,7 @@ farm.bmp  17 16 * 0  32 32  al_create_sub_bitmap constant boy.bmp
 
 : lay-gems
     <space> held? if
-        65 x v@ 16 / swap 16 / swap map @ tileloc !
+        65 x v@ 16 / swap 16 / swap map @ loc !
     then ;
     
 %player m: init

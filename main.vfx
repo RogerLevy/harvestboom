@@ -1,32 +1,16 @@
 require config/options.vfx
 include config/allegro.vfx
+
 cwd vfxland3
 require lib/vl3/vfxland3.vfx
 require lib/csv.vfx
 require plugins/obj2.vfx
 require plugins/bitmaps2.vfx
 require plugins/delta.vfx
+require plugins/tilemap4.vfx
+require lib/files1.vfx
 cwd %idir%
 
-include obj2ext.vfx
-
-%actor kind: %tilemap
-    var tm-cols  \ scalar
-    var tm-rows  \ scalar
-    var tm-dcols  \ scalar
-    var tm-drows  \ scalar
-    var tm-base  \ addr
-    var tm-stride
-    var tm-scrollx  \ scalar
-    var tm-scrolly  \ scalar
-    var tm-tw  \ scalar
-    var tm-th  \ scalar
-    var tm-ts  \ addr
-;kind
-
-include vfxland3/plugins/tilemap2.vfx
-include vfxland3/plugins/tilecol1.vfx
-include vfxland3/lib/files1.vfx
 include lib/str.vfx
 
 -sin  \ disable tokenization of all definitions from here
@@ -38,10 +22,10 @@ include lib/str.vfx
 s" tiled/1-1_active1.csv"  create active.arr  read-csv,
 
 z" assets/castle-tileset.png" loadbmp constant castle.bmp
-create castle.ts  castle.bmp 16 16 tileset
+castle.bmp 16 16 create-tileset castle.ts  
 
 z" assets/Simple Farm Packv12-export-export.png" loadbmp constant farm.bmp
-create farm.ts  farm.bmp 16 16 tileset
+farm.bmp 16 16 create-tileset farm.ts
 
 s" tiled/1-1_ground1.csv"  create ground1.arr read-csv,
 s" tiled/1-1_ground2.csv"  create ground2.arr read-csv,

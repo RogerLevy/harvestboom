@@ -19,12 +19,12 @@ variable object-tile  \ allows objects to know the tile # that spawned them
 
 : load-tile-objects  ( tilemap - )
     gp clear  [[
-    tm-base @  tm-rows s@ 0 do
-        tm-cols s@ 0 do
+    tm-base @  tm-rows 0 do
+        tm-cols 0 do
             dup @ 0 >= if
                 dup @ cells tile-objects + @ ?dup if
                     over @ object-tile !  over clear-tile  
-                    i tm-tw s@ *  j tm-th s@ *  at   
+                    i ts @ tilew *  j ts @ tileh *  at   
                     ( kind ) gp child [[ init .actor ]]
                 then
             then
@@ -55,13 +55,10 @@ create levels  100 cell allot&erase
         s" _ground2.csv" level-layer
         s" _active1.csv" level-layer ;
 
-: count-tilemap  ( tilemap - a c )
-    [[ tm-base @ tm-cols v@ * cells ]] ;
-
 : load-level  ( level - )
-    -> first @ dup count-tilemap g1 [[ tm-base @ ]] swap move
-    -> next @ dup count-tilemap g2 [[ tm-base @ ]] swap move
-    -> next @ count-tilemap a1 [[ tm-base @ ]] swap move
+    -> first @ dup count-tilemap g1 -> tm-base @  swap move
+    -> next @ dup count-tilemap g2 -> tm-base @  swap move
+    -> next @ count-tilemap a1 -> tm-base @  swap move
     a1 load-tile-objects ;
         
 : play  ( n - )
