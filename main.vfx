@@ -1,12 +1,13 @@
++sin  \ enable tokenization of all definitions from here
+
 require config/options.vfx
-include config/allegro.vfx
+require config/allegro.vfx
 
 cwd vfxland3
 require lib/vl3/vfxland3.vfx
 require lib/csv.vfx
-require plugins/obj2.vfx
+require plugins/engine1.vfx
 require plugins/bitmaps2.vfx
-require plugins/delta.vfx
 require plugins/tilemap4.vfx
 require lib/files1.vfx
 cwd %idir%
@@ -40,33 +41,3 @@ include kinds/player.vfx
 include scene.vfx 
 include tile-objects.vfx
 include levels.vfx
-
-\ ------------------------------------------------------------------------------
-
-create alevt /ALLEGRO_EVENT allot&erase
-
-: handle-events
-    begin  queue alevt al_get_next_event  while
-        \ alevt ALLEGRO_EVENT.type @ ALLEGRO_EVENT_MOUSE_BUTTON_DOWN = if
-        \ then 
-    repeat ;
-
-: >display
-    reset-keyboard 
-    display al_get_win_window_handle SetForegroundWindow drop
-    identity 0e 0e 0e 2e 2e transformed
-    !delta ;
-
-: >vfx
-    mswin? if
-        vfx-hwnd SetForegroundWindow drop
-    then ;
-
-: poll  poll-keyboard poll-mouse ;
-: advance  [[ step  physics ]] ;
-: render  [[ draw ]] ;
-: present  display al_flip_display ;
-: frame  poll  handle-events  root advance  root render  present ;
-: go  >display  begin !delta  frame pause  <escape> pressed? until  >vfx ;
-
-\ go
