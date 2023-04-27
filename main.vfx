@@ -41,3 +41,76 @@ include kinds/player.vfx
 include scene.vfx 
 include tile-objects.vfx
 include levels.vfx
+
+\ ------------------------------------------------------------------------------
+
+0 0 at
+create g1  %tilemap root child,  ground1.arr farm.ts 20 15 /tilemap
+create g2  %tilemap root child,  ground2.arr farm.ts 20 15 /tilemap
+create a1  %tilemap root child,  active.arr farm.ts 20 15 /tilemap
+create gp  %scene root child,
+create player %player root child,  a1 map !  50 50 x v!  0 0 vx v!
+
+\ ------------------------------------------------------------------------------
+
+create tile-objects  1024 cells allot&erase
+
+: clear-tile  -1 swap ! ;
+
+variable object-tile  \ allows objects to know the tile # that spawned them
+
+: load-tile-objects  ( tilemap - )
+    gp clear  [[
+    tm-base @  tm-rows 0 do
+        tm-cols 0 do
+            dup @ 0 >= if
+                dup @ cells tile-objects + @ ?dup if
+                    over @ object-tile !  over clear-tile  
+                    i ts @ tilew *  j ts @ tileh *  at   
+                    ( kind ) gp child [[ init .actor ]]
+                then
+            then
+            cell+
+        loop
+    loop  drop ]] ;
+
+\ ------------------------------------------------------------------------------
+
+: csv  ( $ c - a )
+    cr 2dup type  here -rot  read> lines> csv> evaluate , ;
+
+\ ------------------------------------------------------------------------------
+
+%actor kind: %level ;kind
+
+\ ------------------------------------------------------------------------------
+
+create levels  100 cell allot&erase
+0 value (level)
+
+: layer,  ( a:base a:ts - )
+    %tilemap (level) child,  20 15 /tilemap ;
+
+\ $ c = suffix + fileext, pad = level name
+: level-layer  ( $ c - )  
+    s" tiled/" pad count $+ 2swap $+ csv farm.ts layer, ;
+
+: declare-level  ( n - <name> )
+    >in @ create
+    %level static,  me rot cells levels + !  me to (level)
+        >in ! bl parse pad place
+        s" _ground1.csv" level-layer
+        s" _ground2.csv" level-layer
+        s" _active1.csv" level-layer ;
+
+\ ------------------------------------------------------------------------------
+
+: load-level  ( level - )
+    -> first @ dup count-tilemap g1 -> tm-base @  swap move
+    -> next @ dup count-tilemap g2 -> tm-base @  swap move
+    -> next @ count-tilemap a1 -> tm-base @  swap move
+    a1 load-tile-objects ;
+        
+: play  ( n - )
+    dup cells levels + @ dup 0= if  2drop  exit  then
+    swap  level !  load-level ;
