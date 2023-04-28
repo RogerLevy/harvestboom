@@ -37,19 +37,16 @@ variable level
 
 \ ------------------------------------------------------------------------------
 
-include kinds/player.vfx
-include scene.vfx 
-include tile-objects.vfx
-include levels.vfx
+include actors/player.vfx
 
 \ ------------------------------------------------------------------------------
 
-0 0 at
-create g1  %tilemap root child,  ground1.arr farm.ts 20 15 /tilemap
-create g2  %tilemap root child,  ground2.arr farm.ts 20 15 /tilemap
-create a1  %tilemap root child,  active.arr farm.ts 20 15 /tilemap
-create gp  %scene root child,
-create player %player root child,  a1 map !  50 50 x v!  0 0 vx v!
+0 0 at  root to joan
+create g1  ground1.arr farm.ts 20 15 *tilemap drop 
+create g2  ground2.arr farm.ts 20 15 *tilemap drop
+create a1  active.arr farm.ts 20 15 *tilemap drop
+create gp  %scene ** drop
+create p1  %player ** as  a1 map !  50 50 x v!  0 0 vx v!
 
 \ ------------------------------------------------------------------------------
 
@@ -60,14 +57,14 @@ create tile-objects  1024 cells allot&erase
 variable object-tile  \ allows objects to know the tile # that spawned them
 
 : load-tile-objects  ( tilemap - )
-    gp clear  [[
+    gp clear  gp to joan  [[
     tm-base @  tm-rows 0 do
         tm-cols 0 do
             dup @ 0 >= if
                 dup @ cells tile-objects + @ ?dup if
                     over @ object-tile !  over clear-tile  
                     i ts @ tilew *  j ts @ tileh *  at   
-                    ( kind ) gp child [[ init .actor ]]
+                    ( kind ) ** [[ cr .actor ]]
                 then
             then
             cell+
@@ -76,8 +73,9 @@ variable object-tile  \ allows objects to know the tile # that spawned them
 
 \ ------------------------------------------------------------------------------
 
-: csv  ( $ c - a )
-    cr 2dup type  here -rot  read> lines> csv> evaluate , ;
+: csv-ints  ( $ c - a )
+    cr 2dup type
+    here -rot  read> lines> csv> evaluate , ;
 
 \ ------------------------------------------------------------------------------
 
@@ -86,22 +84,28 @@ variable object-tile  \ allows objects to know the tile # that spawned them
 \ ------------------------------------------------------------------------------
 
 create levels  100 cell allot&erase
-0 value (level)
+
+: prefix  pad count ;
 
 : layer,  ( a:base a:ts - )
-    %tilemap (level) child,  20 15 /tilemap ;
+    20 15 *tilemap drop ;
 
-\ $ c = suffix + fileext, pad = level name
-: level-layer  ( $ c - )  
-    s" tiled/" pad count $+ 2swap $+ csv farm.ts layer, ;
+\ ( $ c ) = "suffix.ext", pad = level name
+: level-layer,  ( $ c - )  
+    s" tiled/"  prefix $+  2swap $+  csv-ints farm.ts layer, ;
 
 : declare-level  ( n - <name> )
     >in @ create
-    %level static,  me rot cells levels + !  me to (level)
+    %level static,  me rot cells levels + !  me to joan
         >in ! bl parse pad place
-        s" _ground1.csv" level-layer
-        s" _ground2.csv" level-layer
-        s" _active1.csv" level-layer ;
+        s" _ground1.csv" level-layer,
+        s" _ground2.csv" level-layer,
+        s" _active1.csv" level-layer, ;
+
+\ ------------------------------------------------------------------------------
+
+include tile-objects.vfx
+include levels.vfx
 
 \ ------------------------------------------------------------------------------
 

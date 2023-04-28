@@ -1,8 +1,7 @@
 : rnd  choose ;
 
 %actor kind: %shaky
-    var map
-    var til
+    var map var til
 ;kind %shaky
 
 %shaky m: init
