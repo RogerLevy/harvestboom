@@ -33,11 +33,12 @@ s" tiled/1-1_ground2.csv"  create ground2.arr read-csv,
 
 \ ------------------------------------------------------------------------------
 
-variable level
-
-\ ------------------------------------------------------------------------------
+variable level#
 
 include actors/player.vfx
+
+method (load) ( - )
+: load  ( obj -- )  [[ (load) ]] ;
 
 \ ------------------------------------------------------------------------------
 
@@ -56,7 +57,7 @@ create tile-objects  1024 cells allot&erase
 
 variable object-tile  \ allows objects to know the tile # that spawned them
 
-: load-tile-objects  ( tilemap - )
+: @objects  ( tilemap - )
     gp clear  gp to joan  [[
     tm-base @  tm-rows 0 do
         tm-cols 0 do
@@ -94,7 +95,7 @@ create levels  100 cell allot&erase
 : level-layer,  ( $ c - )  
     s" tiled/"  prefix $+  2swap $+  csv-ints farm.ts layer, ;
 
-: declare-level  ( n - <name> )
+: level  ( n - <name> )
     >in @ create
     %level static,  me rot cells levels + !  me to joan
         >in ! bl parse pad place
@@ -105,16 +106,18 @@ create levels  100 cell allot&erase
 \ ------------------------------------------------------------------------------
 
 include tile-objects.vfx
+
+0 to joan
 include levels.vfx
 
 \ ------------------------------------------------------------------------------
 
-: load-level  ( level - )
-    -> first @ dup count-tilemap g1 -> tm-base @  swap move
-    -> next @ dup count-tilemap g2 -> tm-base @  swap move
-    -> next @ count-tilemap a1 -> tm-base @  swap move
-    a1 load-tile-objects ;
+: @tiles  >r dup count-tilemap r> -> tm-base @  swap move  >next ;
+
+%level m: (load)
+    first @ g1 @tiles g2 @tiles a1 @tiles drop 
+    a1 @objects ;
         
 : play  ( n - )
     dup cells levels + @ dup 0= if  2drop  exit  then
-    swap  level !  load-level ;
+    swap  level# !  load ;
